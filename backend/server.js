@@ -9,9 +9,15 @@ import rateLimit from "express-rate-limit";
 dotenv.config();
 
 const app = express();
+app.use(cors({
+  origin: "https://your-frontend.vercel.app",
+  credentials: true
+}));
 
-app.use(cors());
+
 app.use(express.json());
+app.set("trust proxy", 1);
+
 
 // Limit each IP to 5 requests per 10 minutes
 const limiter = rateLimit({
