@@ -10,7 +10,8 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: "https://your-frontend.vercel.app",
+  origin: "https://my-portfolio-eta-nine-58.vercel.app",
+  methods: ["GET", "POST"],
   credentials: true
 }));
 
