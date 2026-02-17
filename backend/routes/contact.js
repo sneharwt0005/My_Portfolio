@@ -1,11 +1,16 @@
 import express from "express";
 import Contact from "../models/Contact.js";
-import nodemailer from "nodemailer";
 import process from "process";
+import { Resend } from "resend";
 
 const router = express.Router();
 
+
+
 router.post("/", async (req, res) => {
+    console.log("Contact route hit");
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
   const { name, email, message } = req.body;
 
   try {
@@ -13,35 +18,28 @@ router.post("/", async (req, res) => {
     const newContact = new Contact({ name, email, message });
     await newContact.save();
 
-    // 2️⃣ Setup Nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER, // aapka Gmail
-        pass: process.env.EMAIL_PASS, // App Password
-      },
+    const data = await resend.emails.send({
+      from: "email", // default testing sender
+      to: "rwts38549@gmail.com", // change this to your email
+      subject: `New Message from ${name}`,
+      html: `
+        <h3>New Contact Form Message</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong> ${message}</p>
+      `,
     });
 
-    // 3️⃣ Email details
-    const mailOptions = {
-      from: email,
-      to: process.env.EMAIL_USER, // ✅ Email aapke Gmail me aayega
-      subject: `New Contact Form Message from ${name}`,
-      text: `
-Name: ${name}
-Email: ${email}
-Message: ${message}
-      `,
-    };
+    
 
-    // 4️⃣ Send Email
-    await transporter.sendMail(mailOptions);
+     res.status(200).json({ success: true, data });
 
-    // 5️⃣ Response to frontend
-    res.status(201).json({ message: "Message saved & email sent successfully!" });
   } catch (error) {
-    console.error("Error sending email:", error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error(error);
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 });
 

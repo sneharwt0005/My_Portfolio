@@ -6,11 +6,15 @@ import dotenv from "dotenv";
 import contactRoute from "./routes/contact.js";
 import rateLimit from "express-rate-limit";
 
-dotenv.config();
+dotenv.config({ path: "./.env" });
+
 
 const app = express();
 app.use(cors({
-  origin: "https://my-portfolio-f9x993ul2-sneha-rawats-projects.vercel.app",
+  origin: [
+    "http://localhost:5173",
+    "https://my-portfolio-f9x993ul2-sneha-rawats-projects.vercel.app"
+  ],
   methods: ["GET", "POST"],
   credentials: true
 }));
